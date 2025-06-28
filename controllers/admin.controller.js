@@ -121,3 +121,23 @@ export const getAdminDashboard = async (req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 };
+// ✅ Get Admin Profile (for /api/admin/me)
+export const getAdminProfile = async (req, res) => {
+  try {
+    const admin = await Admin.findById(req.user._id);
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};

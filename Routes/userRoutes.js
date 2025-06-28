@@ -17,12 +17,15 @@ router.post('/', protect, restrictTo('admin'), async (req, res) => {
   res.status(201).json(savedUser);
 });
 
-// 🔐 Any logged-in user: Get own data or specific user (admin)
-router.get('/:id', protect, async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
-    return res.status(403).json({ message: 'Access denied' });
-  }
+// 🔐 Any logged-in user: Get own profile
+router.get('/me', protect, async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  res.json(user);
+});
 
+// 🔐 Any logged-in user: Get specific user (admin only)
+router.get('/:id', protect, restrictTo('admin'), async (req, res) => {
   const user = await User.findById(req.params.id);
   res.json(user);
 });
